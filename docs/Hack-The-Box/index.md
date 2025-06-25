@@ -1,6 +1,6 @@
 ---
 title: Hack The Box
-nav_order: 10
+nav_order: 12
 has_children: true
 ---
 

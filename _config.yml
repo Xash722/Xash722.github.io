@@ -16,8 +16,8 @@
 title: Onyx Hub
 description: My CyberSecurity Blog
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://Xash722.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-repository: Xash722/Xash722.github.io # for github-metadata
+url: "https://kwscs.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+repository: kwscs/kwscs.github.io # for github-metadata
 
 permalink: pretty
 
