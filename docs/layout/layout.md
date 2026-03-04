@@ -2,6 +2,8 @@
 title: Layout
 layout: default
 nav_order: 4.5
+nav_exclude: true
+search_exclude: true
 ---
 
 # Layout

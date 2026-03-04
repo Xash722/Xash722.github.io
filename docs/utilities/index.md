@@ -1,6 +1,8 @@
 ---
 title: Utilities
 nav_order: 4
+nav_exclude: true
+search_exclude: true
 ---
 
 # Utilities
