@@ -1,6 +1,7 @@
 ---
 title: Hack The Box
-nav_order: 12
+parent: 공격 이해
+nav_order: 4
 has_children: true
 ---
 

@@ -8,7 +8,7 @@ nav_order: 1
 
 ## 머신 소개
 
-윈도우 기반 머신으로 NTML 해시 캡처와 LFI 취약점, 해시크래킹에 대해 다룬다.
+윈도우 기반 머신으로 NTLM 해시 캡처와 LFI 취약점, 해시크래킹에 대해 다룬다.
 
 ## 사용되는 툴
 
@@ -113,7 +113,7 @@ LFI 취약점이 존재하는지 확인하기 위해 대다수 시스템에서 �
 
 
 <br>
-**NTHash vs NTLM vs NetNTMLv2**
+**NTHash vs NTLM vs NetNTLMv2**
 
 
 | 항목         | 실전 핵심 요약 |

@@ -33,7 +33,7 @@ nav_order: 1
 
 포트 111번, 2049번에 대해 해당 포트가 열려있는지 확인하고 열려있다면 운용 중인 서비스 버전을 표시하고 nfs와 관련된 모든 NSE 스크립트를 실행하도록 명령어를 작성한다.
 
-![nmap실행결과](\assets\images\nfs\nfs1_nmap실행결과.png)
+![nmap실행결과](/assets/images/nfs/nfs1_nmap실행결과.png)
 nmap명령어 실행 결과 
 {: .text-center}
 
@@ -48,7 +48,7 @@ nmap명령어 실행 결과
 
 ## showmount를 활용한 방법
 
-![showmount실행결과](\assets\images\nfs\nfs2_showmount실행결과.png)
+![showmount실행결과](/assets/images/nfs/nfs2_showmount실행결과.png)
 {: .text-center}
 showmount실행결과
 {: .text-center}
@@ -59,32 +59,32 @@ NSE 스크립트 중 showmount를 실행했을 때와 같은 결과가 나온 �
 ```sudo mount <IP주소>:<NFS서버가 노출하고 있는 디렉토리> <마운트할 경로>```
 {: .fs-6 .text-center}
 
-![nfs마운트1](\assets\images\nfs\nfs3_nfs마운트1.png)
+![nfs마운트1](/assets/images/nfs/nfs3_nfs마운트1.png)
 {: .text-center}
 NFS 마운트
 {: .text-center}
 
 /mnt 디렉터리 하위에 마운트할 임의의 디렉터리를 만들고 명령어를 실행하면 해당위치에 마운트 된다.
 
-![nfs마운트2](\assets\images\nfs\nfs4_nfs마운트2.png)
+![nfs마운트2](/assets/images/nfs/nfs4_nfs마운트2.png)
 {: .text-center}
 NFS 마운트 결과1
 {: .text-center}
-![nfs마운트3](\assets\images\nfs\nfs5_nfs마운트3.png)
+![nfs마운트3](/assets/images/nfs/nfs5_nfs마운트3.png)
 {: .text-center}
 NFS 마운트 결과2
 {: .text-center}
 
-마운트한 디렉터리를 확인해보면 credentails.txt라는 민감한 파일을 획득할 수 있다.
+마운트한 디렉터리를 확인해보면 credentials.txt라는 민감한 파일을 획득할 수 있다.
 
 
 ## no_root_squash 설정 진단
 
 > no_root_squash 설정이란
 > NFS 서버가 클라이언트에서 접속한 사용자 중 root 사용자를 그대로 root로 동작하는 것을 허용하는 옵션이다.
-> 악성 사용자가 클라이언트에서 root로 접속한 후 NFS 서버로 드렁와 악의적인 행동을 할 수 있기 때문에 해당 옵션을 비활성화 하는 것이 좋다.
+> 악성 사용자가 클라이언트에서 root로 접속한 후 NFS 서버로 들어와 악의적인 행동을 할 수 있기 때문에 해당 옵션을 비활성화 하는 것이 좋다.
 
-![no_root_squash설정점검](\assets\images\nfs\nfs6_norootsquash.png)
+![no_root_squash설정점검](/assets/images/nfs/nfs6_norootsquash.png)
 {: .text-center}
 no_root_squash 설정 점검
 {: .text-center}

@@ -1,1 +1,120 @@
 // custom SCSS (or CSS) goes here
+
+// ---------------------------------------------------------------------------
+// On-page table of contents + ScrollSpy (sticky panel on the right)
+//
+// Colors are not invented; they reuse the same theme variables as the left
+// sidebar nav links:
+//   - inactive item : $nav-child-link-color  (#959396, sidebar normal/child link grey)
+//   - active item   : $link-color            (#2c84fa, sidebar selected/active link blue)
+//   - hover bg      : $feedback-color gradient (same as .nav-list-link:hover)
+// The active item also uses font-weight: 600, like the sidebar active link.
+// ---------------------------------------------------------------------------
+
+$toc-max-width: 15rem; // max width when the right margin is wide
+
+.toc-sidebar {
+  display: none; // hidden by default (narrow screens / pages without headings)
+}
+
+// Threshold lowered to 1280px (covers 2560x1440 with OS scaling of 150-200%).
+// Position: start at the right edge of the content (.main, max $content-width,
+// centered) by computing `left` from the theme's centering formula, so it never
+// overlaps the content.
+// Width: use the margin from the content's right edge to the viewport's right
+// edge (capped at $toc-max-width).
+@media (min-width: 80rem) {
+  .toc-sidebar.is-ready {
+    display: block;
+    position: fixed; // follows the page while scrolling
+    z-index: 1;
+    box-sizing: border-box;
+    top: calc(#{$header-height} + 1.5rem);
+    left: calc((100vw + #{$nav-width} + #{$content-width}) / 2 + 1rem);
+    width: calc((100vw - #{$nav-width} - #{$content-width}) / 2 - 2rem);
+    max-width: $toc-max-width;
+    max-height: calc(100vh - #{$header-height} - 3rem);
+    padding-left: 0.75rem;
+    overflow-y: auto;
+    border-left: $border $border-color;
+  }
+}
+
+.toc-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.toc-item {
+  margin: 0;
+}
+
+// h3 sub-list: collapsed by default, expands only for the active h2 section
+.toc-sub {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s ease;
+}
+
+.toc-item.toc-h2.is-expanded > .toc-sub {
+  // max-height is set in JS to the exact content height (smooth, no dead time)
+  opacity: 1;
+}
+
+.toc-item.toc-h3 .toc-link {
+  padding-left: 1.5rem; // indent h3 items
+}
+
+.toc-link {
+  display: block;
+  padding: 0.2rem 0.5rem;
+  font-size: $font-size-4; // same as the left sidebar nav link (0.875rem at desktop)
+  line-height: 1.4;
+  color: $nav-child-link-color; // inactive = sidebar normal link grey
+  text-decoration: none;
+
+  &:hover {
+    // same background gradient as the sidebar .nav-list-link:hover
+    background-image: linear-gradient(
+      -90deg,
+      rgba($feedback-color, 1) 0%,
+      rgba($feedback-color, 0.8) 80%,
+      rgba($feedback-color, 0) 100%
+    );
+  }
+
+  &.active {
+    font-weight: 600;
+    color: $link-color; // active = sidebar selected link blue
+    background-image: linear-gradient(
+      -90deg,
+      rgba($feedback-color, 1) 0%,
+      rgba($feedback-color, 0.8) 80%,
+      rgba($feedback-color, 0) 100%
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Smooth expand/collapse for the LEFT sidebar nav sub-lists.
+// The theme reveals a child nav-list with display:none/block (instant); we override
+// to an animatable max-height driven by assets/js/nav-collapse.js, using the same
+// easing/timing as the on-page TOC above.
+// No-JS fallback: active sections open instantly (max-height: none).
+// ---------------------------------------------------------------------------
+.nav-list .nav-list-item > .nav-list {
+  display: block; // override the theme's display:none so the height can transition
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-list .nav-list-item.active > .nav-list {
+  max-height: none; // no-JS fallback; JS sets an inline max-height when available
+}

@@ -1,7 +1,10 @@
 ---
 title: Recon & Enumeration
-nav_order: 2
+parent: 공격 이해
+nav_order: 1
 has_children: true
 ---
 
-# 취약점 진단
+# Recon & Enumeration
+
+서비스별 취약점 진단

@@ -38,7 +38,7 @@ ffuf에는 워드리스트가 필요하며 주로 SecLists를 사용한다.
 | 7) API 엔드포인트 퍼징                 | `Discovery/Web-Content/common-api-endpoints-mazen160.txt`<br>`Discovery/Web-Content/api/api-endpoints.txt`                                                                                                                                                                                                             |
 
 
-# 디렉토리 퍼징
+## 디렉토리 퍼징
 
 핵심 옵션 두 가지는 워드 리스트를 지정하는 `-w`와 url을 지정하는 `-u`
 
@@ -58,13 +58,13 @@ ffuf -w <워드리스트> -u http://ip주소:포트번호/FUZZ
 <br>
 <figure style="text-align:center;">
     <img src="{{ '/assets/images/tools/ffuf/1_directory.png' | relative_url }}" style="width:700px;">
-    <figcaption>디렉토러 퍼징</figcaption>
+    <figcaption>디렉토리 퍼징</figcaption>
 </figure>
 <br>
 
 blog와 forum을 발견했다.
 
-# 확장자 퍼징
+## 확장자 퍼징
 
 <br>
 <figure style="text-align:center;">
@@ -89,7 +89,87 @@ blog와 forum을 발견했다.
 PHP만 상태코드 200이 나온다.
 그럼 이제 웹 사이트가 php로 동작한다는 정보를 얻었으니 php 파일을 대상으로 퍼징을 하면 된다.
 
-# 페이지 퍼징
+## 페이지 퍼징
+
+확장자가 php라는 것을 알았으니, 이번엔 디렉터리 안에 어떤 php 페이지가 있는지 찾는다.
+페이지 이름이 들어갈 위치에 FUZZ를 넣고 뒤에 `.php`를 붙인 뒤, 파일명 워드리스트를 할당한다.
+
+```
+ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-files.txt:FUZZ -u http://ip주소:포트번호/FUZZ.php
+```
+
+확장자 퍼징과 달리 워드리스트에는 `.`이 없으므로 FUZZ 뒤에 `.php`를 직접 붙여야 한다.
+특정 디렉터리 안을 찾고 싶다면 `http://ip주소:포트번호/디렉터리/FUZZ.php` 처럼 경로를 지정하면 된다.
+
+## VHOST 퍼징
+
+하나의 IP에 여러 웹 사이트가 올라가 있는 경우, 서버는 요청의 `Host` 헤더를 보고 어떤 사이트를 보여줄지 결정한다.
+즉 IP는 같아도 `Host` 헤더에 들어가는 도메인에 따라 다른 페이지가 응답될 수 있다.
+이렇게 겉으로 드러나지 않는 가상 호스트(vhost)를 찾기 위해 `Host` 헤더 값을 퍼징한다.
+
+먼저 대상 도메인을 `/etc/hosts`에 등록해 해당 IP로 향하도록 해둔다.
+
+```
+ffuf -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://대상도메인:포트번호/ -H "Host: FUZZ.대상도메인"
+```
+
+`-H` 옵션으로 헤더를 지정하고, `Host` 헤더에서 서브도메인이 들어갈 위치에 FUZZ를 넣는다.
+
+> 존재하지 않는 vhost도 서버는 기본 페이지를 200으로 돌려주는 경우가 많다.
+> 그래서 모든 결과가 200으로 보이는데, 이때는 기본 응답의 크기(size)나 단어 수(word)를 `-fs`, `-fw` 옵션으로 걸러내야 진짜 다른 vhost만 남는다.
+
+```
+ffuf -w <워드리스트>:FUZZ -u http://대상도메인:포트번호/ -H "Host: FUZZ.대상도메인" -fs <기본응답크기>
+```
+
+## 파라미터 이름 퍼징
+
+페이지가 어떤 파라미터를 받는지 모를 때, 파라미터 이름 자체를 퍼징해서 숨겨진 입력값을 찾는다.
+
+GET 방식은 URL 쿼리스트링의 파라미터 이름 위치에 FUZZ를 넣는다.
+
+```
+ffuf -w /usr/share/wordlists/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ -u http://ip주소:포트번호/페이지.php?FUZZ=key -fs <기본응답크기>
+```
+
+POST 방식은 `-X POST`로 메서드를 바꾸고, `-d`로 본문 데이터에 FUZZ를 넣는다.
+폼 데이터로 보낼 때는 `Content-Type` 헤더도 함께 지정한다.
+
+```
+ffuf -w <워드리스트>:FUZZ -u http://ip주소:포트번호/페이지.php -X POST -d "FUZZ=key" -H "Content-Type: application/x-www-form-urlencoded" -fs <기본응답크기>
+```
+
+여기서도 존재하지 않는 파라미터는 동일한 크기의 응답이 돌아오므로, `-fs`로 기본 응답을 걸러내면 유효한 파라미터만 남길 수 있다.
+
+## 파라미터 값 퍼징
+
+파라미터 이름을 알아냈다면, 이번엔 그 파라미터에 들어갈 값을 퍼징한다.
+예를 들어 `id` 같은 숫자형 파라미터라면 숫자 워드리스트를 사용한다.
+
+```
+ffuf -w /usr/share/wordlists/seclists/Fuzzing/4-digits-0000-9999.txt:FUZZ -u http://ip주소:포트번호/페이지.php -X POST -d "id=FUZZ" -H "Content-Type: application/x-www-form-urlencoded" -fs <기본응답크기>
+```
+
+유효하지 않은 값은 같은 응답을 돌려주므로, 마찬가지로 `-fs`/`-fc` 등으로 기본 응답을 걸러내면 의미 있는 값만 남는다.
+
+## 자주 쓰는 옵션 정리
+
+| 옵션 | 설명 |
+| --- | --- |
+| `-w` | 워드리스트 지정 (`파일:FUZZ` 형식으로 키워드 할당) |
+| `-u` | 대상 URL (FUZZ 위치 지정) |
+| `-H` | 요청 헤더 지정 (VHOST 퍼징 시 `Host` 헤더 등) |
+| `-X` | HTTP 메서드 지정 (`POST` 등) |
+| `-d` | POST 본문 데이터 |
+| `-ic` | 워드리스트의 주석/저작권 줄 무시 |
+| `-mc` | 특정 상태코드만 매칭 (match code) |
+| `-fc` | 특정 상태코드 제외 (filter code) |
+| `-fs` | 특정 응답 크기 제외 (filter size) |
+| `-fw` | 특정 단어 수 제외 (filter word) |
+| `-recursion` | 발견한 디렉터리를 따라 들어가며 재귀 퍼징 |
+
+퍼징의 핵심은 결국 **"정상(기본) 응답을 걸러내고 다른 응답만 남기는 것"**이다.
+`-fs`, `-fc`, `-fw`로 기본 응답을 제거하고, `-mc`로 원하는 상태코드만 남기면 결과를 훨씬 깔끔하게 볼 수 있다.
 
 
 
